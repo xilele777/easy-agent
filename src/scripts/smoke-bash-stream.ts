@@ -17,6 +17,11 @@ import {
 const TOOL_USE_ID = "smoke-stream-1";
 
 async function main(): Promise<void> {
+  if (process.platform === "win32") {
+    console.error("Bash streaming smoke requires a POSIX shell; the Windows production gate does not run it.");
+    process.exitCode = 1;
+    return;
+  }
   const snapshots: BashProgress[] = [];
   let sawRunning = false;
 

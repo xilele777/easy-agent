@@ -54,9 +54,8 @@ const MAX_HOOK_OUTPUT_BYTES = 64 * 1024;
  *   - We want streaming stdout/stderr capture with abort support
  *   - The shell flag matters (some hooks rely on `$VAR` expansion)
  *
- * We spawn `bash -c "<command>"` (or `sh -c` if the entry asked for
- * `shell: "sh"`). Windows installations therefore need a compatible
- * POSIX shell on PATH.
+ * Windows defaults to PowerShell; other platforms default to bash.
+ * Each hook may select bash, sh, powershell, or pwsh explicitly.
  */
 async function runShellCommand(
   hook: HookCommand,
@@ -72,13 +71,19 @@ async function runShellCommand(
   outputTruncated: boolean;
   durationMs: number;
 }> {
-  const shellBin = hook.shell === "sh" ? "sh" : "bash";
+  const shell = hook.shell ?? (process.platform === "win32" ? "powershell" : "bash");
+  const shellBin = shell === "powershell"
+    ? process.env.EASY_AGENT_POWERSHELL || "powershell.exe"
+    : shell === "pwsh" ? "pwsh.exe" : shell;
+  const shellArgs = shell === "powershell" || shell === "pwsh"
+    ? ["-NoProfile", "-NonInteractive", "-Command", hook.command]
+    : ["-c", hook.command];
   const timeoutMs = (hook.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
   const startedAt = Date.now();
   try {
     const run = await runControlledProcess({
       executable: shellBin,
-      args: ["-c", hook.command],
+      args: shellArgs,
       cwd,
       env: {
         ...process.env,
@@ -94,7 +99,7 @@ async function runShellCommand(
     return {
       stdout: formatCapturedOutput(run.stdout, run.stdoutOmittedBytes),
       stderr: run.spawnError
-        ? `Hook spawn failed: ${run.spawnError.message}`
+        ? `Hook shell ${shellBin} could not start: ${run.spawnError.message}. Install the shell or set hook.shell to an available interpreter.`
         : run.stdinError && !run.stderr
           ? `Hook stdin failed: ${run.stdinError.message}`
           : formatCapturedOutput(run.stderr, run.stderrOmittedBytes),

@@ -62,7 +62,7 @@ interface ResultMessage {
   session_id: string;
   num_turns: number;
   duration_ms: number;
-  total_cost_usd: number;
+  total_cost_usd: number | null;
   usage: Usage;
 }
 
@@ -276,7 +276,7 @@ export async function runHeadless(options: RunHeadlessOptions): Promise<void> {
         session_id: sessionId,
         num_turns: numTurns,
         duration_ms: Date.now() - startedAt,
-        total_cost_usd: 0,
+        total_cost_usd: null,
         usage: totalUsage,
       };
       writeJsonLine(errResult);
@@ -297,9 +297,8 @@ export async function runHeadless(options: RunHeadlessOptions): Promise<void> {
       session_id: sessionId,
       num_turns: numTurns,
       duration_ms: Date.now() - startedAt,
-      // We don't price tokens yet; surface 0 to keep the field stable for
-      // consumers (a later stage can wire real cost accounting).
-      total_cost_usd: 0,
+      // Pricing is unavailable without a maintained model price source.
+      total_cost_usd: null,
       usage: totalUsage,
     };
     writeJsonLine(result);

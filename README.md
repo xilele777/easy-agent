@@ -158,6 +158,21 @@ eagent -p "list the tools" --output-format json # machine-readable output
 git diff | eagent -p "review this patch"         # combine stdin and a prompt
 ```
 
+In headless JSON and NDJSON results, `total_cost_usd` is `null` when pricing is unavailable. Token counts remain in `usage`; `null` does not mean the request was free.
+
+### Windows command support
+
+| Feature | Windows behavior |
+| --- | --- |
+| File search | `Grep` tries `rg.exe`, then `grep`; install ripgrep for the intended search behavior. |
+| Native commands | Use the `PowerShell` tool (`powershell.exe` by default, configurable with `EASY_AGENT_POWERSHELL`). |
+| `Bash` tool | Requires a working POSIX shell; set `SHELL` when it is not available as `bash`. A WSL launcher alone may not be usable. |
+| Command hooks | PowerShell by default; set `hook.shell` to `bash`, `sh`, `powershell`, or `pwsh` for each hook. |
+| `apiKeyHelper` | Uses `SHELL`, `ComSpec`, or `cmd.exe`, in that order. Write the helper command for the selected shell. |
+| Host sandbox | Not implemented on Windows. A fail-closed policy blocks PowerShell execution. |
+
+See [subprocess execution](./docs/subprocesses.md) and [sandbox limitations](./docs/sandbox-security.md) for details.
+
 Run `eagent --help` for every startup option. Useful REPL commands include:
 
 | Command | Purpose |

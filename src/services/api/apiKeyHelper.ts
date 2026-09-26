@@ -40,7 +40,7 @@ export async function resolveApiKeyFromHelper(cwd: string): Promise<string | nul
       cwd,
       timeout: HELPER_TIMEOUT_MS,
       maxBuffer: 1024 * 1024,
-      shell: process.env.SHELL || "/bin/bash",
+      shell: process.env.SHELL || (process.platform === "win32" ? process.env.ComSpec || "cmd.exe" : "/bin/bash"),
     });
     const token = stdout.trim();
     return token || null;

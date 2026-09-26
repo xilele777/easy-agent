@@ -333,7 +333,9 @@ async function main(): Promise<void> {
   await withTempDir(async (tmpHome) => {
     // Override HOME so getProjectsRoot writes inside tmpHome.
     const prevHome = process.env.HOME;
+    const prevUserProfile = process.env.USERPROFILE;
     process.env.HOME = tmpHome;
+    process.env.USERPROFILE = tmpHome;
     try {
       const sessionId = "test-session/with/slashes";
       const agentId = "abc-123";
@@ -375,6 +377,8 @@ async function main(): Promise<void> {
     } finally {
       if (prevHome === undefined) delete process.env.HOME;
       else process.env.HOME = prevHome;
+      if (prevUserProfile === undefined) delete process.env.USERPROFILE;
+      else process.env.USERPROFILE = prevUserProfile;
     }
   });
 
@@ -516,7 +520,9 @@ async function main(): Promise<void> {
     // lands in a clean tmp dir rather than the real ~/.easy-agent/.
     const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "stage20-home-"));
     const prevHome = process.env.HOME;
+    const prevUserProfile = process.env.USERPROFILE;
     process.env.HOME = tmpHome;
+    process.env.USERPROFILE = tmpHome;
 
     try {
       // The key invariant: when the AgentTool is called with
@@ -584,6 +590,8 @@ async function main(): Promise<void> {
     } finally {
       if (prevHome === undefined) delete process.env.HOME;
       else process.env.HOME = prevHome;
+      if (prevUserProfile === undefined) delete process.env.USERPROFILE;
+      else process.env.USERPROFILE = prevUserProfile;
       await fs.rm(tmpHome, { recursive: true, force: true });
     }
   });
@@ -593,7 +601,9 @@ async function main(): Promise<void> {
 
   await withTempDir(async (tmpHome) => {
     const prevHome = process.env.HOME;
+    const prevUserProfile = process.env.USERPROFILE;
     process.env.HOME = tmpHome;
+    process.env.USERPROFILE = tmpHome;
     clearAllAsyncAgents();
     clearPendingNotifications();
 
@@ -645,6 +655,8 @@ async function main(): Promise<void> {
     } finally {
       if (prevHome === undefined) delete process.env.HOME;
       else process.env.HOME = prevHome;
+      if (prevUserProfile === undefined) delete process.env.USERPROFILE;
+      else process.env.USERPROFILE = prevUserProfile;
     }
   });
 
@@ -920,7 +932,9 @@ Bad iso value should be silently dropped.`,
 
     const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "stage20-perm-"));
     const prevHome = process.env.HOME;
+    const prevUserProfile = process.env.USERPROFILE;
     process.env.HOME = tmpHome;
+    process.env.USERPROFILE = tmpHome;
     try {
       const ctx: ToolContext = {
         cwd: process.cwd(),
@@ -966,6 +980,8 @@ Bad iso value should be silently dropped.`,
       } else {
         process.env.HOME = prevHome;
       }
+      if (prevUserProfile === undefined) delete process.env.USERPROFILE;
+      else process.env.USERPROFILE = prevUserProfile;
       await fs.rm(tmpHome, { recursive: true, force: true });
       clearAllAsyncAgents();
     }

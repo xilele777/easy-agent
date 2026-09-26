@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, type ExecFileOptions } from "node:child_process";
 import { promisify } from "node:util";
 import type { Tool, ToolContext, ToolResult } from "./Tool.js";
 import { withValidatedWorkspacePath, WorkspacePathError } from "./pathUtils.js";
@@ -12,12 +12,46 @@ interface GrepInput {
   include?: string;
 }
 
-async function hasCommand(command: string): Promise<boolean> {
+type SearchRunner = (
+  command: string,
+  args: string[],
+  options: ExecFileOptions,
+) => Promise<{ stdout: string }>;
+
+function isMissingExecutable(error: unknown): boolean {
+  return (error as NodeJS.ErrnoException)?.code === "ENOENT";
+}
+
+export async function executeGrepSearch(
+  input: GrepInput,
+  targetPath: string,
+  targetIsDirectory: boolean,
+  respectGitignore: boolean,
+  run: SearchRunner = execFileAsync,
+): Promise<string> {
+  const rgArgs = ["-n", "--hidden"];
+  if (!respectGitignore) rgArgs.push("--no-ignore");
+  if (input.include) rgArgs.push("-g", input.include);
+  rgArgs.push("--", input.pattern, targetIsDirectory ? "." : targetPath);
+
   try {
-    await execFileAsync("sh", ["-lc", `command -v ${command}`]);
-    return true;
-  } catch {
-    return false;
+    const { stdout } = await run("rg", rgArgs, {
+      cwd: targetIsDirectory ? targetPath : undefined,
+      maxBuffer: 1024 * 1024,
+    });
+    return stdout.trim();
+  } catch (error) {
+    if (!isMissingExecutable(error)) throw error;
+  }
+
+  try {
+    const { stdout } = await run("grep", ["-rIn", "--", input.pattern, targetPath], {
+      maxBuffer: 1024 * 1024,
+    });
+    return stdout.trim();
+  } catch (error) {
+    if (!isMissingExecutable(error)) throw error;
+    throw new Error("Neither rg (ripgrep) nor grep is available on PATH. Install ripgrep or add grep to PATH.");
   }
 }
 
@@ -47,27 +81,7 @@ export const grepTool: Tool = {
         input.path ?? ".",
         context.cwd,
         async (targetPath, stats) => {
-          if (await hasCommand("rg")) {
-            const args = ["-n", "--hidden"];
-            if (!respectGitignore) args.push("--no-ignore");
-            if (input.include) {
-              args.push("-g", input.include);
-            }
-            const targetIsDirectory = stats.isDirectory();
-            args.push(input.pattern, targetIsDirectory ? "." : targetPath);
-            const { stdout } = await execFileAsync("rg", args, {
-              cwd: targetIsDirectory ? targetPath : undefined,
-              maxBuffer: 1024 * 1024,
-            });
-            const output = stdout.trim();
-            return {
-              content: output ? output : `No matches found for pattern: ${input.pattern}`,
-            };
-          }
-
-          const grepArgs = ["-RIn", input.pattern, targetPath];
-          const { stdout } = await execFileAsync("grep", grepArgs, { maxBuffer: 1024 * 1024 });
-          const output = stdout.trim();
+          const output = await executeGrepSearch(input, targetPath, stats.isDirectory(), respectGitignore);
           return {
             content: output ? output : `No matches found for pattern: ${input.pattern}`,
           };

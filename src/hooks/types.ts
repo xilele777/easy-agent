@@ -78,11 +78,10 @@ export interface HookCommand {
    */
   timeout?: number;
   /**
-   * Optional shell override. Today we only support "bash" (or
-   * `sh` on POSIX when bash is unavailable). Source supports
-   * "powershell" too — we omit it for simplicity.
+   * Optional shell override. Defaults to PowerShell on Windows and bash
+   * elsewhere. Use "bash" or "sh" for POSIX hook commands on Windows.
    */
-  shell?: "bash" | "sh";
+  shell?: "bash" | "sh" | "powershell" | "pwsh";
   /** Extra environment supplied by a plugin/runtime wrapper. */
   env?: Record<string, string>;
 }

@@ -199,12 +199,20 @@ export const bashTool: Tool = {
       if (run.reason === "aborted") return { content: "Command aborted", isError: true };
       if (run.reason === "timeout") return { content: `Command timed out after ${timeoutMs}ms`, isError: true };
       if (run.reason === "idle_timeout") return { content: `Command idle for ${idleTimeoutMs}ms`, isError: true };
-      if (run.spawnError) return { content: `Failed to start command: ${run.spawnError.message}`, isError: true };
+      if (run.spawnError) {
+        const help = process.platform === "win32"
+          ? ` Install a POSIX shell and set SHELL to its executable, or use the PowerShell tool.`
+          : ` Check that ${shell} is installed and available on PATH.`;
+        return { content: `Failed to start command with ${shell}: ${run.spawnError.message}.${help}`, isError: true };
+      }
 
       // Tag sandbox denials for the model while retaining bounded stderr.
       const annotatedStderr = sandboxCommand
         ? annotateSandboxFailure(sandboxCommand.commandId, run.stderr, run.exitCode)
         : run.stderr;
+      const windowsShellHint = process.platform === "win32" && !sandboxCommand && run.exitCode !== 0
+        ? "\nShell hint: Bash requires a working POSIX shell. If bash.exe is a WSL launcher that cannot start, install a working shell or use the PowerShell tool."
+        : "";
       const output = [
         `Command: ${input.command}`,
         `Read-only: ${readOnlyAnalysis.isReadOnly}`,
@@ -213,6 +221,7 @@ export const bashTool: Tool = {
         run.signal ? `Signal: ${run.signal}` : "",
         run.stdout ? `\nSTDOUT:\n${formatCapturedOutput(run.stdout, run.stdoutOmittedBytes)}` : "",
         annotatedStderr ? `\nSTDERR:\n${formatCapturedOutput(annotatedStderr, run.stderrOmittedBytes)}` : "",
+        windowsShellHint,
       ].filter(Boolean).join("\n");
       return { content: output, isError: (run.exitCode ?? 1) !== 0 };
     } catch (error) {

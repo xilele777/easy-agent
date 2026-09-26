@@ -155,6 +155,12 @@ async function main(): Promise<void> {
       "Grep still searches ordinary workspace files",
       toolResultText(normalGrep.content),
     );
+    const fileGrep = await call(grepTool, { path: normalFile, pattern: "ALPHA" }, workspace);
+    check(
+      fileGrep.isError !== true && toolResultText(fileGrep.content).includes("ALPHA"),
+      "Grep searches an ordinary workspace file directly",
+      toolResultText(fileGrep.content),
+    );
     const hiddenDirectory = path.join(workspace, ".hidden");
     await fs.mkdir(hiddenDirectory);
     await fs.writeFile(path.join(hiddenDirectory, "visible-to-glob.txt"), "hidden\n", "utf8");
@@ -226,6 +232,21 @@ async function main(): Promise<void> {
     await fs.mkdir(outsideDir);
     await fs.writeFile(path.join(outsideDir, "visible.txt"), "external listing\n", "utf8");
     await createDirectorySymlink(outsideDir, escapeDir);
+
+    const nestedEscapeDir = path.join(workspace, "nested-escape-dir");
+    await fs.mkdir(nestedEscapeDir);
+    await createDirectorySymlink(outsideDir, path.join(nestedEscapeDir, "outside-link"));
+    const nestedEscapeGrep = await call(
+      grepTool,
+      { path: nestedEscapeDir, pattern: "external listing" },
+      workspace,
+    );
+    check(
+      nestedEscapeGrep.isError !== true &&
+        toolResultText(nestedEscapeGrep.content).startsWith("No matches found"),
+      "Grep does not follow a nested link outside the workspace",
+      toolResultText(nestedEscapeGrep.content),
+    );
 
     const readDirectoryEscape = await call(fileReadTool, { file_path: escapeDir }, workspace);
     check(readDirectoryEscape.isError === true, "Read rejects an escaping directory link");

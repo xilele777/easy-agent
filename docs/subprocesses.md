@@ -1,5 +1,16 @@
 # Subprocess execution
 
+## Shell selection
+
+| Caller | Windows | macOS and Linux |
+| --- | --- | --- |
+| `Bash` tool | `SHELL` or `bash`, with `-lc`; requires a working POSIX shell | `SHELL` or `bash`, with `-lc` |
+| `PowerShell` tool | `EASY_AGENT_POWERSHELL` or `powershell.exe`, with `-NoProfile -NonInteractive -Command` | Unavailable |
+| Command hooks | PowerShell by default; `hook.shell` may select `bash`, `sh`, `powershell`, or `pwsh` | Bash by default; the same `hook.shell` choices are available |
+| `apiKeyHelper` | `SHELL`, then `ComSpec`, then `cmd.exe`; commands use that shell's syntax | `SHELL` or `/bin/bash` |
+
+Hooks using POSIX syntax on Windows must set `shell: "bash"` or `shell: "sh"` and have that interpreter installed. A missing Hook or Bash interpreter produces an actionable error; an installed `bash.exe` that fails to start WSL is reported as a command failure with a shell hint. Windows PowerShell execution is not host sandboxed; see [sandbox limitations](./sandbox-security.md).
+
 Bash, PowerShell, command hooks and custom status-line commands use the same subprocess runner. It captures stdout and stderr in separate fixed-size byte rings. It keeps reading after a ring fills, so a chatty command does not stall on a full pipe, and returns the retained tail with a count of omitted bytes.
 
 | Caller | Captured output per stream | Wall limit | Idle limit |

@@ -64,7 +64,8 @@ function normalizeMatcherGroup(value: unknown): HookMatcherGroup | null {
       typeof h.timeout === "number" && Number.isFinite(h.timeout) && h.timeout > 0
         ? h.timeout
         : DEFAULT_HOOK_TIMEOUT_SEC;
-    const shell = h.shell === "sh" || h.shell === "bash" ? h.shell : undefined;
+    const shell = h.shell === "sh" || h.shell === "bash" ||
+      h.shell === "powershell" || h.shell === "pwsh" ? h.shell : undefined;
     const entry: HookCommand = { type: "command", command: h.command, timeout };
     if (shell) entry.shell = shell;
     hooks.push(entry);

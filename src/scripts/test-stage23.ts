@@ -77,14 +77,18 @@ async function withTempEnv(
   const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "stage23-home-"));
   const tmpCwd = await fs.mkdtemp(path.join(os.tmpdir(), "stage23-cwd-"));
   const prevHome = process.env["HOME"];
+  const prevUserProfile = process.env["USERPROFILE"];
   process.env["HOME"] = tmpHome;
+  process.env["USERPROFILE"] = tmpHome;
   try {
     await fn(tmpHome, tmpCwd);
   } finally {
     if (prevHome !== undefined) process.env["HOME"] = prevHome;
     else delete process.env["HOME"];
-    await fs.rm(tmpHome, { recursive: true, force: true });
-    await fs.rm(tmpCwd, { recursive: true, force: true });
+    if (prevUserProfile !== undefined) process.env["USERPROFILE"] = prevUserProfile;
+    else delete process.env["USERPROFILE"];
+    await fs.rm(tmpHome, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    await fs.rm(tmpCwd, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
     clearOutputStyles();
     clearUserCommands();
   }

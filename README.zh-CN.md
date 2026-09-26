@@ -158,6 +158,21 @@ eagent -p "列出可用工具" --output-format json   # 机器可读输出
 git diff | eagent -p "审查这个补丁"              # 合并 stdin 与 Prompt
 ```
 
+Headless JSON 和 NDJSON 结果中的 `total_cost_usd` 为 `null` 表示尚无可用定价，不能解释为免费；Token 数量仍在 `usage` 字段中。
+
+### Windows 命令支持
+
+| 功能 | Windows 行为 |
+| --- | --- |
+| 文件搜索 | `Grep` 先尝试 `rg.exe`，再回退到 `grep`；建议安装 ripgrep。 |
+| 原生命令 | 使用 `PowerShell` 工具，默认运行 `powershell.exe`，可用 `EASY_AGENT_POWERSHELL` 配置。 |
+| `Bash` 工具 | 需要可用的 POSIX Shell；若不在 `bash` 路径上，可设置 `SHELL`。仅有 WSL 启动入口不一定可运行。 |
+| 命令 Hooks | 默认使用 PowerShell；每个 Hook 可用 `hook.shell` 指定 `bash`、`sh`、`powershell` 或 `pwsh`。 |
+| `apiKeyHelper` | 依次选择 `SHELL`、`ComSpec`、`cmd.exe`；命令需使用所选解释器的语法。 |
+| 宿主沙箱 | Windows 尚未实现；启用 fail-closed 策略时会阻止 PowerShell 执行。 |
+
+细节见[子进程执行](./docs/subprocesses.md)和[沙箱限制](./docs/sandbox-security.md)。
+
 运行 `eagent --help` 查看全部启动参数。常用 REPL 命令包括：
 
 | 命令 | 用途 |

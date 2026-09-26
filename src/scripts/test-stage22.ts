@@ -89,12 +89,16 @@ async function withTempHome(
   const tmpHome = await fs.mkdtemp(path.join(os.tmpdir(), "stage22-home-"));
   const tmpCwd = await fs.mkdtemp(path.join(os.tmpdir(), "stage22-cwd-"));
   const prevHome = process.env["HOME"];
+  const prevUserProfile = process.env["USERPROFILE"];
   process.env["HOME"] = tmpHome;
+  process.env["USERPROFILE"] = tmpHome;
   try {
     await fn(tmpHome, tmpCwd);
   } finally {
     if (prevHome !== undefined) process.env["HOME"] = prevHome;
     else delete process.env["HOME"];
+    if (prevUserProfile !== undefined) process.env["USERPROFILE"] = prevUserProfile;
+    else delete process.env["USERPROFILE"];
     await fs.rm(tmpHome, { recursive: true, force: true });
     await fs.rm(tmpCwd, { recursive: true, force: true });
     _resetHooksSettingsCache();
@@ -855,7 +859,12 @@ async function main(): Promise<void> {
 // these types directly in the body.
 void ({} as HookResult);
 
-main().catch((err: unknown) => {
-  console.error("Test script crashed:", err);
-  process.exit(2);
-});
+if (process.platform === "win32") {
+  console.error("Stage 22 hooks test requires POSIX shell syntax. Run test:windows-shell for native Windows hooks.");
+  process.exitCode = 1;
+} else {
+  main().catch((err: unknown) => {
+    console.error("Test script crashed:", err);
+    process.exit(2);
+  });
+}

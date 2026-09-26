@@ -61,7 +61,7 @@ async function withTempProject(
   try {
     await fn(tmp);
   } finally {
-    await fs.rm(tmp, { recursive: true, force: true });
+    await fs.rm(tmp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 }
 

@@ -63,6 +63,12 @@ Run the workspace path boundary suite after changing file tools, allowed roots, 
 npm run test:path-boundary
 ```
 
+Run the Grep command selection regression after changing its executable fallback:
+
+```bash
+npm run test:grep-command
+```
+
 Run the persistence suite after changing settings, runtime state, tasks, teams, sessions, or atomic file writes:
 
 ```bash
@@ -74,6 +80,10 @@ Run the subprocess suite after changing Bash, PowerShell, hooks, the status line
 ```bash
 npm run test:controlled-process
 ```
+
+The Stage 22 hook suite uses POSIX shell syntax and runs in the production gate on macOS and Linux. The Windows gate runs `npm run test:windows-shell` for native PowerShell hooks, the PowerShell tool, `apiKeyHelper`, and missing shell diagnostics.
+
+The Bash streaming smoke uses a POSIX `for` loop and runs on macOS and Linux. Windows uses the PowerShell tool for native commands; this smoke does not claim to test PowerShell streaming.
 
 Run the configuration trust suite after changing settings precedence, environment loading, providers, MCP, plugins, sandbox settings, or headless startup:
 
