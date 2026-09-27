@@ -11,6 +11,39 @@ import { bashTool } from "../tools/bashTool.js";
 import { powerShellTool } from "../tools/powerShellTool.js";
 import { getUserSettingsPath } from "../utils/paths.js";
 
+async function waitForPid(file: string): Promise<number> {
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    try {
+      const pid = Number(await fs.readFile(file, "utf8"));
+      if (Number.isSafeInteger(pid) && pid > 0) return pid;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error(`Timed out waiting for child PID in ${file}`);
+}
+
+async function processAlive(pid: number): Promise<boolean> {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ESRCH") return false;
+    throw error;
+  }
+}
+
+async function waitForProcessExit(pid: number): Promise<void> {
+  const deadline = Date.now() + 5_000;
+  while (Date.now() < deadline) {
+    if (!(await processAlive(pid))) return;
+    await new Promise((resolve) => setTimeout(resolve, 30));
+  }
+  throw new Error(`PowerShell child process ${pid} survived cancellation`);
+}
+
 if (process.platform !== "win32") {
   process.stdout.write("Windows shell checks skipped on this platform.\n");
 } else {
@@ -47,6 +80,33 @@ if (process.platform !== "win32") {
     const native = await powerShellTool.call({ command: "Write-Output native-shell" }, { cwd });
     assert.notEqual(native.isError, true);
     assert.match(String(native.content), /native-shell/);
+
+    const childMarker = path.join(cwd, "powershell-child.pid");
+    const quotedMarker = childMarker.replace(/'/g, "''");
+    const controller = new AbortController();
+    const running = powerShellTool.call({
+      command:
+        "$child = Start-Process -FilePath powershell.exe " +
+        "-ArgumentList @('-NoProfile','-NonInteractive','-Command','Start-Sleep -Seconds 30') " +
+        "-PassThru -WindowStyle Hidden; " +
+        `[System.IO.File]::WriteAllText('${quotedMarker}', [string]$child.Id); ` +
+        "Start-Sleep -Seconds 30",
+      timeout: 10_000,
+    }, { cwd, abortSignal: controller.signal });
+    let childPid = 0;
+    try {
+      childPid = await waitForPid(childMarker);
+    } finally {
+      controller.abort();
+    }
+    const stopped = await running;
+    assert.equal(stopped.isError, true);
+    assert.match(String(stopped.content), /Command aborted/);
+    try {
+      await waitForProcessExit(childPid);
+    } finally {
+      if (await processAlive(childPid)) process.kill(childPid);
+    }
 
     const settingsFile = getUserSettingsPath();
     await fs.mkdir(path.dirname(settingsFile), { recursive: true });
@@ -85,7 +145,7 @@ if (process.platform !== "win32") {
     assert.equal(missingBash.isError, true);
     assert.match(String(missingBash.content), /use the PowerShell tool/);
 
-    process.stdout.write("Windows PowerShell, hooks, helper and shell diagnostics passed.\n");
+    process.stdout.write("Windows PowerShell, cancellation, hooks, helper and shell diagnostics passed.\n");
   } finally {
     for (const key of ["HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "SHELL", "EASY_AGENT_POWERSHELL"] as const) {
       if (oldEnv[key] === undefined) delete process.env[key];

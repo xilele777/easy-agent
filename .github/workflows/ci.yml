@@ -3,6 +3,7 @@ name: Continuous integration
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -29,7 +30,7 @@ jobs:
       - run: npm run verify:production
 
   portability:
-    name: Core tests (${{ matrix.os }})
+    name: Production gate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,9 +43,7 @@ jobs:
           node-version: "22"
           package-manager-cache: false
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build
-      - run: npm run verify:production:core
+      - run: npm run verify:production
 
   sandbox-host:
     name: Host sandbox integration
