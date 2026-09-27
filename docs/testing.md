@@ -113,6 +113,14 @@ Live tests require valid provider credentials and may consume API quota. They ru
 npm run verify:production:live
 ```
 
+For the three-task Windows real-model benchmark pilot, build the CLI, configure a user-level model profile, and run:
+
+```powershell
+node --import tsx scripts/benchmark-windows.ts
+```
+
+The script defaults to the `deepseek` profile; set `EASY_AGENT_BENCHMARK_PROFILE` to use another configured profile. It creates isolated temporary Git repositories, runs the agent in headless mode, checks the final tests and changed-file scope, prints per-task JSON metrics, then removes the fixtures. This is a credentialed live check and is not part of the default gate.
+
 Plugin compatibility verification also requires an explicit package path or repository URL and remains outside the default gate:
 
 ```bash
