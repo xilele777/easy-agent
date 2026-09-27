@@ -2,6 +2,23 @@
 
 This file provides guidance to AI agents when working with code in this repository.
 
+## Documentation layout
+
+When creating, renaming, or moving project documents, follow these placement and filename rules. Document content, language, and templates are unconstrained.
+
+After every project change or refactor, promptly add a separate document under `learn/changes/`, named `NNNN-YYYY-MM-DD-改造-中文主题.md`. Preserve existing records as snapshots of their time; editing an old record does not replace the new one. Navigation indexes and project explanations may also be updated where needed, but those updates do not replace the new record.
+
+- Keep only the fixed entry documents at the repository root: `README.md`, `README.zh-CN.md`, `CHANGELOG.md`, `AGENT.md`, and `AGENTS.md`.
+- Put project usage, implementation, testing, and security explanations directly in `docs/`, with lowercase English `kebab-case.md` names such as `sandbox-security.md`.
+- Use `learn/` for project research, changes, bugs, plans, handoffs, and other project records, not just learning notes. Keep `learn/README.md` as its index. Put other documents in `learn/reference/` (参考), `learn/reviews/` (评审), `learn/bugs/` (缺陷), `learn/plans/` (规划), `learn/changes/` (改造), `learn/handoff/` (交接), or `learn/resume/` (简历) according to purpose.
+- Name files in those `learn/` category directories `NNNN-YYYY-MM-DD-类型-中文主题.md`, using the category's Chinese type shown above. Number from `0000` within each directory and use the next existing number for a new file. The date is the initial writing date; do not rename a file for later edits.
+- Move completed or abandoned plans from `learn/plans/` to `learn/archive/plans/` without changing their filenames. Fix relative links when moving a document. Create currently absent category directories when first needed.
+- `step/` contains tutorial code snapshots, `src/` contains product code, and `dist/` contains build output. Keep code-local explanations and test fixtures with their code; the project documentation naming rules do not apply to them.
+
+## Commit scope
+
+For future changes, split commits into independent, reviewable units whenever practical. Keep the relevant code, tests, and new `learn/changes/` record together in each commit. Do not mix unrelated changes in one commit. State each commit's purpose and run the checks relevant to it before committing.
+
 ## What this project is
 
 Easy Agent is a **terminal-native agentic coding CLI** published as the `eagent` npm package. It installs the `eagent` command and the `easy-agent` long alias.
