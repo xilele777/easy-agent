@@ -1,14 +1,15 @@
 # 项目文档目录约束
 
-新增、重命名或移动项目文档时，直接遵守以下目录与文件名规则。目前不约束正文内容、语言或模板。
+新增、重命名或移动项目文档时，直接遵守以下目录与文件名规则。除下述工作日志的日期顺序和简要记录要求外，目前不约束正文内容、语言或模板。
 
 每次项目改造完成时，及时在 `learn/changes/` 新增一份独立文档，文件名为 `NNNN-YYYY-MM-DD-改造-中文主题.md`。既有记录保留其原有时点的结论，不通过修改旧记录代替本次新文档；导航索引及需要保持准确的项目说明可以同步维护，但不能代替新文档。
 
 - 仓库根目录只放固定入口文档：`README.md`、`README.zh-CN.md`、`CHANGELOG.md`、`AGENT.md`、`AGENTS.md`。
 - 项目使用、实现、测试和安全等说明放在 `docs/` 直属目录，文件名使用英文小写 `kebab-case.md`，例如 `sandbox-security.md`。
-- `learn/` 保存项目调研、改造、缺陷、规划与交接等过程资料，并不限于学习笔记。`learn/README.md` 是目录索引；其余文档按用途放在 `learn/reference/`（参考）、`learn/reviews/`（评审）、`learn/bugs/`（缺陷）、`learn/plans/`（规划）、`learn/changes/`（改造）、`learn/handoff/`（交接）或 `learn/resume/`（简历）。
+- `learn/` 保存项目调研、改造、缺陷、规划与交接等过程资料，并不限于学习笔记。根目录的 `learn/README.md` 是目录索引，`learn/WORKLOG.md` 是按日期倒序的简明工作日志；其余文档按用途放在 `learn/reference/`（参考）、`learn/reviews/`（评审）、`learn/bugs/`（缺陷）、`learn/plans/`（规划）、`learn/changes/`（改造）、`learn/handoff/`（交接）或 `learn/resume/`（简历）。
 - `learn/` 中上述分类目录的文件名统一为 `NNNN-YYYY-MM-DD-类型-中文主题.md`；“类型”使用对应目录括号内的词。`NNNN` 在各目录内从 `0000` 开始，新文件取已有编号的下一个值；日期为首次写作日期，后续编辑不改编号和日期。
-- 已完成或废弃的计划从 `learn/plans/` 移到 `learn/archive/plans/`，保留原文件名；移动文档后修正指向它的相对链接。尚不存在的分类目录在首次使用时创建。
+- 新阶段开始或当前计划完成时，及时在 `learn/plans/` 新增具体的下一步计划，不能只口头说明；计划编号不复用 `learn/archive/plans/` 中已用的编号。已完成或废弃的计划从 `learn/plans/` 移到 `learn/archive/plans/`，保留原文件名；移动文档后修正指向它的相对链接。尚不存在的分类目录在首次使用时创建。
+- 开始项目工作时先看 `learn/WORKLOG.md` 和当前计划。每次完成工作后，同步在工作日志顶部对应日期下用容易理解的话简要写明做了什么、得到什么结果、接下来做什么；新日期放在旧日期上方，并附详细记录的链接。工作日志不代替 `learn/changes/` 的独立改造记录。
 - `step/` 是教学代码快照，`src/` 是产品代码，`dist/` 是构建产物。代码内必要的说明文件及测试夹具随代码管理，不套用项目文档的命名规则。
 
 Easy Agent 的其他项目指导见 `AGENT.md`。
