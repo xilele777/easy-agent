@@ -9,7 +9,7 @@ npm ci
 npm run verify:production
 ```
 
-The command runs TypeScript validation, builds the distributable CLI, and executes the `core`, `extensions`, and `ui` test groups. Any failed test or timeout returns a non-zero exit code. CI runs this default offline gate on Linux, macOS, and Windows. `npm run verify:release` includes this gate before the package and installation checks.
+The command runs TypeScript validation, builds the distributable CLI, and executes the `core`, `extensions`, and `ui` test groups. Any failed test or timeout returns a non-zero exit code. CI runs this default offline gate on Windows for code changes on feature branches. Pushes to `main` and manual CI runs also run it on Linux and macOS, plus their host sandbox checks. Documentation-only push and pull request changes skip CI; mixed changes still run it. `npm run verify:release` includes this gate before the package and installation checks.
 
 Each offline test process receives a temporary `HOME`, `USERPROFILE`, XDG directories, and Windows application-data directories. Provider credentials, API endpoints, MCP settings, editor overrides, and `EASY_AGENT_*` feature settings inherited from the developer environment are removed. Tests must create their own configuration and fixtures under the assigned temporary directories.
 

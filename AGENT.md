@@ -20,6 +20,8 @@ After every project change or refactor, promptly add a separate document under `
 
 For future changes, split commits into independent, reviewable units whenever practical. Keep the relevant code, tests, and new `learn/changes/` record together in each commit. Do not mix unrelated changes in one commit. State each commit's purpose and run the checks relevant to it before committing.
 
+Windows is the primary development and daily validation platform. For code changes on feature branches, prefer relevant Windows checks; the default branch and manual CI runs retain Linux and macOS coverage. For documentation-only changes, check links, paths, and the diff; a build, tests, or a manually triggered CI run are not required. For mixed changes, choose checks based on the code affected. Run the full cross-platform gate at phase completion or integration rather than for every small commit.
+
 ## What this project is
 
 Easy Agent is a **terminal-native agentic coding CLI** published as the `eagent` npm package. It installs the `eagent` command and the `easy-agent` long alias.

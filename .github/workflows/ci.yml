@@ -2,7 +2,11 @@ name: Continuous integration
 
 on:
   push:
+    paths-ignore:
+      - "**/*.md"
   pull_request:
+    paths-ignore:
+      - "**/*.md"
   workflow_dispatch:
 
 concurrency:
@@ -13,8 +17,21 @@ permissions:
   contents: read
 
 jobs:
+  windows-gate:
+    name: Production gate (Windows, Node 22)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run verify:production
+
   production-gate:
     name: Production gate (Node ${{ matrix.node }})
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,12 +47,9 @@ jobs:
       - run: npm run verify:production
 
   portability:
-    name: Production gate (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, windows-latest]
+    name: Production gate (macOS)
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -47,6 +61,7 @@ jobs:
 
   sandbox-host:
     name: Host sandbox integration
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
@@ -59,6 +74,7 @@ jobs:
 
   sandbox-host-linux:
     name: Host sandbox integration (Linux)
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
