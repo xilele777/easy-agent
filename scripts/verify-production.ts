@@ -30,6 +30,7 @@ const TESTS: TestDefinition[] = [
   { id: "session-notices", group: "core", file: "src/scripts/test-useagentsession-notices.ts" },
   { id: "tools", group: "core", file: "src/scripts/test-tools.ts" },
   { id: "grep-command", group: "core", file: "src/scripts/test-grep-command.ts" },
+  { id: "workflow-offline", group: "core", file: "src/scripts/test-workflow-offline.ts" },
   { id: "path-boundary", group: "core", file: "src/scripts/test-path-boundary.ts" },
   { id: "private-data", group: "core", file: "src/scripts/test-private-data-permissions.ts" },
   { id: "persistence", group: "core", file: "src/scripts/test-atomic-persistence.ts" },

@@ -171,7 +171,7 @@ Headless JSON 和 NDJSON 结果中的 `total_cost_usd` 为 `null` 表示尚无�
 | `apiKeyHelper` | 依次选择 `SHELL`、`ComSpec`、`cmd.exe`；命令需使用所选解释器的语法。 |
 | 宿主沙箱 | Windows 尚未实现；启用 fail-closed 策略时会阻止 PowerShell 执行。 |
 
-细节见[子进程执行](./docs/subprocesses.md)和[沙箱限制](./docs/sandbox-security.md)。
+复现步骤见[Windows 工作流演示](./docs/windows-workflow.md)；实现边界见[子进程执行](./docs/subprocesses.md)和[沙箱限制](./docs/sandbox-security.md)。
 
 运行 `eagent --help` 查看全部启动参数。常用 REPL 命令包括：
 

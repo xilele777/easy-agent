@@ -171,7 +171,7 @@ In headless JSON and NDJSON results, `total_cost_usd` is `null` when pricing is 
 | `apiKeyHelper` | Uses `SHELL`, `ComSpec`, or `cmd.exe`, in that order. Write the helper command for the selected shell. |
 | Host sandbox | Not implemented on Windows. A fail-closed policy blocks PowerShell execution. |
 
-See [subprocess execution](./docs/subprocesses.md) and [sandbox limitations](./docs/sandbox-security.md) for details.
+See [the Windows workflow walkthrough](./docs/windows-workflow.md), [subprocess execution](./docs/subprocesses.md), and [sandbox limitations](./docs/sandbox-security.md) for details.
 
 Run `eagent --help` for every startup option. Useful REPL commands include:
 

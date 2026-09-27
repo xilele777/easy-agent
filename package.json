@@ -40,6 +40,7 @@
     "test:streaming": "tsx src/scripts/test-streaming.ts",
     "test:tools": "tsx src/scripts/test-tools.ts",
     "test:grep-command": "node --import tsx src/scripts/test-grep-command.ts",
+    "test:workflow-offline": "node --import tsx src/scripts/test-workflow-offline.ts",
     "test:path-boundary": "node --import tsx src/scripts/test-path-boundary.ts",
     "test:private-data": "node --import tsx src/scripts/test-private-data-permissions.ts",
     "test:persistence": "node --import tsx src/scripts/test-atomic-persistence.ts",

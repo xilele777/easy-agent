@@ -9,7 +9,7 @@ npm ci
 npm run verify:production
 ```
 
-The command runs TypeScript validation, builds the distributable CLI, and executes the `core`, `extensions`, and `ui` test groups. Any failed test or timeout returns a non-zero exit code. `npm run verify:release` includes this gate before the package and installation checks.
+The command runs TypeScript validation, builds the distributable CLI, and executes the `core`, `extensions`, and `ui` test groups. Any failed test or timeout returns a non-zero exit code. CI runs this default offline gate on Linux, macOS, and Windows. `npm run verify:release` includes this gate before the package and installation checks.
 
 Each offline test process receives a temporary `HOME`, `USERPROFILE`, XDG directories, and Windows application-data directories. Provider credentials, API endpoints, MCP settings, editor overrides, and `EASY_AGENT_*` feature settings inherited from the developer environment are removed. Tests must create their own configuration and fixtures under the assigned temporary directories.
 
@@ -69,6 +69,12 @@ Run the Grep command selection regression after changing its executable fallback
 npm run test:grep-command
 ```
 
+Run the offline workflow regression after changing the agent loop, permissions, diff, or file history:
+
+```bash
+npm run test:workflow-offline
+```
+
 Run the persistence suite after changing settings, runtime state, tasks, teams, sessions, or atomic file writes:
 
 ```bash
@@ -81,7 +87,7 @@ Run the subprocess suite after changing Bash, PowerShell, hooks, the status line
 npm run test:controlled-process
 ```
 
-The Stage 22 hook suite uses POSIX shell syntax and runs in the production gate on macOS and Linux. The Windows gate runs `npm run test:windows-shell` for native PowerShell hooks, the PowerShell tool, `apiKeyHelper`, and missing shell diagnostics.
+The Stage 22 hook suite uses POSIX shell syntax and runs in the production gate on macOS and Linux. The Windows gate runs `npm run test:windows-shell` for native PowerShell hooks, the PowerShell tool and cancellation, `apiKeyHelper`, and missing shell diagnostics.
 
 The Bash streaming smoke uses a POSIX `for` loop and runs on macOS and Linux. Windows uses the PowerShell tool for native commands; this smoke does not claim to test PowerShell streaming.
 
